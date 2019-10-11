@@ -19,7 +19,7 @@ public class Movement : MonoBehaviour
     private bool isGround;
     private bool onLeftWall;
     private bool onRightWall;
-    private bool isJump;
+    //private bool isJump;
 
     private int extraJump;
 
@@ -87,10 +87,10 @@ public class Movement : MonoBehaviour
         float fallDown = 3f;
         float upResis = 2f;
 
-        if (Input.GetButtonDown("Jump"))
+        /*if (Input.GetButtonDown("Jump"))
         {
             isJump = true;
-        }
+        }*/
 
         if (isGround)
         {
@@ -102,19 +102,19 @@ public class Movement : MonoBehaviour
             rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;
         }
 
-        if (rb.velocity.y > 0 && !isJump)
+        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
         }
 
-        if (isJump && extraJump > 0)
+        if (Input.GetButtonDown("Jump") && extraJump > 0)
         {
             //rb.velocity = new Vector2(rb.velocity.x, 0);
             rb.velocity = Vector2.up * jumpForce;
             extraJump--;
             anim.SetBool("jumping", true);
         }
-        if (isJump && extraJump == 0 && isGround)
+        if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)
         {
             //rb.velocity = new Vector2(rb.velocity.x, 0);
             rb.velocity = Vector2.up * jumpForce;
