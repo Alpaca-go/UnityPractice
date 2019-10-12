@@ -103,7 +103,7 @@ public class Movement : MonoBehaviour
     private void Jump()
     {
         if (isJump) {
-            if (isGround && rb.velocity.y <= 0) {
+            if (isGround && rb.velocity.y < 0) {
                 anim.SetBool("jumping", false);
                 isJump = false;
                 jumpTimes = allowJumpTimes;

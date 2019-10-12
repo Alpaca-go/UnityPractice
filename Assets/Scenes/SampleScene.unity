@@ -273,7 +273,8 @@ MonoBehaviour:
   leftCheck: {fileID: 310242708}
   rightCheck: {fileID: 1703699305}
   speed: 10
-  jumpForce: 15
+  jumpForce: 350
+  allowJumpTimes: 2
 --- !u!1 &310242707
 GameObject:
   m_ObjectHideFlags: 0
