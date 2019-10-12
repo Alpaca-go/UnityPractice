@@ -13,38 +13,45 @@ public class Movement : MonoBehaviour
 
     public Transform groundCheck, leftCheck, rightCheck;
 
-    public float speed = 10;
-    public float jumpForce = 6;
+    public float speed = 1;
+    public float jumpForce = 350;
 
     private bool isGround;
     private bool onLeftWall;
     private bool onRightWall;
-    //private bool isJump;
 
-    private int extraJump;
+    private bool isJump;
+    public int allowJumpTimes = 2;
+
+    private int jumpTimes;
 
     void Start()
     {
+        Debug.Log("start");
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
 
+        jumpTimes = allowJumpTimes;
+
         //transform.DetachChildren();
+        
     }
 
     
     void Update()
     {
+        
+
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
         onLeftWall = Physics2D.OverlapCircle(leftCheck.position, 0.2f, ground);
         onRightWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
 
+        ActJump();
         Walk();
         Jump();
         Grab();
-        siwtchAnim();
-
-
+        switchAnim();
     }
 
     private void Walk()
@@ -54,6 +61,7 @@ public class Movement : MonoBehaviour
 
         if (x != 0)
         {
+            //Debug.Log(rb.velocity);
             rb.velocity = new Vector2(x * speed, rb.velocity.y);
             anim.SetFloat("walking", Mathf.Abs(xRaw));
         }
@@ -78,51 +86,34 @@ public class Movement : MonoBehaviour
         }
     }
 
-
-
-
-
-    private void Jump()
+    private void ActJump() 
     {
-        float fallDown = 3f;
-        float upResis = 2f;
-
-        /*if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump"))
         {
-            isJump = true;
-        }*/
-
-        if (isGround)
-        {
-            extraJump = 2;
-        }
-
-        if (rb.velocity.y < 0)
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;
-        }
-
-        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
-        }
-
-        if (Input.GetButtonDown("Jump") && extraJump > 0)
-        {
-            //rb.velocity = new Vector2(rb.velocity.x, 0);
-            rb.velocity = Vector2.up * jumpForce;
-            extraJump--;
-            anim.SetBool("jumping", true);
-        }
-        if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)
-        {
-            //rb.velocity = new Vector2(rb.velocity.x, 0);
-            rb.velocity = Vector2.up * jumpForce;
-            anim.SetBool("jumping", true);
+            if (jumpTimes > 0) {
+                // rb.velocity = Vector2.up * jumpForce;
+                rb.AddForce(Vector2.up * jumpForce);
+                
+                anim.SetBool("jumping", true);
+                jumpTimes --;
+                if (jumpTimes < 0) jumpTimes = 0;
+                isJump = true;
+            }
         }
     }
 
-    private void siwtchAnim()
+    private void Jump()
+    {
+        if (isJump) {
+            if (isGround && rb.velocity.y < 0) {
+                anim.SetBool("jumping", false);
+                isJump = false;
+                jumpTimes = allowJumpTimes;
+            }
+        }
+    }
+
+    private void switchAnim()
     {
         if (rb.velocity.y < 0 && !coll.IsTouchingLayers(ground))
         {
