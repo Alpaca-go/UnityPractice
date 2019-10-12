@@ -13,7 +13,7 @@ public class Movement : MonoBehaviour
 
     public Transform groundCheck, leftCheck, rightCheck;
 
-    public float speed = 10;
+    public float speed = 1;
     public float jumpForce = 350;
 
     private bool isGround;
@@ -35,6 +35,7 @@ public class Movement : MonoBehaviour
         jumpTimes = allowJumpTimes;
 
         //transform.DetachChildren();
+        
     }
 
     
@@ -60,6 +61,7 @@ public class Movement : MonoBehaviour
 
         if (x != 0)
         {
+            //Debug.Log(rb.velocity);
             rb.velocity = new Vector2(x * speed, rb.velocity.y);
             anim.SetFloat("walking", Mathf.Abs(xRaw));
         }
