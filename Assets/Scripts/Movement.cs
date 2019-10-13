@@ -14,14 +14,18 @@ public class Movement : MonoBehaviour
     public Transform groundCheck, leftCheck, rightCheck;
 
     public float speed = 10;
-    public float jumpForce = 6;
+    public float jumpForce = 3;
 
     private bool isGround;
     private bool onLeftWall;
     private bool onRightWall;
-    //private bool isJump;
+    private bool isJump;
 
     private int extraJump;
+
+    
+    private float nowHeighth;
+    public float maxHeighth;
 
     void Start()
     {
@@ -71,6 +75,7 @@ public class Movement : MonoBehaviour
         if (rb.velocity.y != 0 && Input.GetKey(KeyCode.LeftArrow) && onRightWall)
         {
             //transform.localScale = new Vector3(1, 1, 1);
+            rb.gravityScale = 0;
             rb.velocity = new Vector2(0, y * speed);
             anim.SetBool("jumping", false);
             anim.SetBool("falling", false);
@@ -81,45 +86,80 @@ public class Movement : MonoBehaviour
 
 
 
-
     private void Jump()
     {
-        float fallDown = 3f;
-        float upResis = 2f;
+        float fallDown = 2f;  //重力
+        float upResis = 2f;  //上升阻力
+        nowHeighth = maxHeighth;
 
-        /*if (Input.GetButtonDown("Jump"))
-        {
-            isJump = true;
-        }*/
+        //float jumpHold = jumpForce * Time.deltaTime;
 
         if (isGround)
         {
             extraJump = 2;
         }
 
-        if (rb.velocity.y < 0)
+        
+        if (rb.velocity.y < 0)  //自由落体运动
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;
+            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;  
         }
 
-        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))
+        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Jump") && extraJump > 0)
+        if (Input.GetButtonDown("Jump") && extraJump > 0) 
         {
-            //rb.velocity = new Vector2(rb.velocity.x, 0);
             rb.velocity = Vector2.up * jumpForce;
             extraJump--;
             anim.SetBool("jumping", true);
         }
         if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)
         {
-            //rb.velocity = new Vector2(rb.velocity.x, 0);
             rb.velocity = Vector2.up * jumpForce;
             anim.SetBool("jumping", true);
         }
+
+        /*if (Input.GetButtonDown("Jump") && extraJump > 0)
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            extraJump --;
+
+            if (jumpHold >= maxHigh || Input.GetButtonUp("Jump"))
+            {
+                rb.velocity = new Vector2(rb.velocity.x, 0);
+
+            }
+        }*/
+
+        /*if (Input.GetButtonDown("Jump") && isGround)
+        {
+            isJump = true;
+            rb.velocity = Vector2.up * jumpForce;
+            nowHeighth = maxHeighth;
+        }
+
+        
+        if (Input.GetButton("Jump") && isJump)
+        {
+            if (nowHeighth > 0)
+            {
+                rb.velocity = Vector2.up * jumpForce;
+                nowHeighth -= Time.deltaTime;
+            }
+            else
+            {
+                isJump = false;
+            }
+        }
+
+        if (Input.GetButtonUp("Jump"))
+        {
+            isJump = false;
+        }*/
+
     }
 
     private void siwtchAnim()
