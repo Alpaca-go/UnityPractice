@@ -21,7 +21,7 @@ public class Movement : MonoBehaviour
     private bool onLeftWall;
     private bool onRightWall;
     private bool onWall;
-    private bool isJump;
+    //private bool isJump;
     private bool wallGrab;
 
     private int extraJump;
@@ -113,7 +113,7 @@ public class Movement : MonoBehaviour
             rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime; 
         }
 
-        if (rb.velocity.y > 0 && !isJump)   //添加上升阻力，使其不失重
+        if (rb.velocity.y > 0 && Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
         }
