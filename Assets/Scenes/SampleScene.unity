@@ -274,6 +274,7 @@ MonoBehaviour:
   rightCheck: {fileID: 1703699305}
   speed: 10
   jumpForce: 15
+  borderSpeed: 2
 --- !u!1 &310242707
 GameObject:
   m_ObjectHideFlags: 0
@@ -286,7 +287,7 @@ GameObject:
   m_Layer: 0
   m_Name: leftCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -813,7 +814,7 @@ GameObject:
   m_Layer: 0
   m_Name: groundCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -873,7 +874,7 @@ TilemapCollider2D:
   m_GameObject: {fileID: 1631157881}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 6200000, guid: 9edc486f0c6ea8f4299ae5088cf3e18d, type: 2}
+  m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -7699,7 +7700,7 @@ GameObject:
   m_Layer: 0
   m_Name: rightCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

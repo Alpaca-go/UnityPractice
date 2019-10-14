@@ -15,40 +15,50 @@ public class Movement : MonoBehaviour
 
     public float speed = 10;
     public float jumpForce = 3;
+    public float borderSpeed = 2;
 
     private bool isGround;
     private bool onLeftWall;
     private bool onRightWall;
+    private bool onWall;
     private bool isJump;
+    private bool wallGrab;
 
     private int extraJump;
 
-    
-    private float nowHeighth;
-    public float maxHeighth;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
-
-        //transform.DetachChildren();
     }
 
     
     void Update()
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
-        onLeftWall = Physics2D.OverlapCircle(leftCheck.position, 0.2f, ground);
+        //onLeftWall = Physics2D.OverlapCircle(leftCheck.position, 0.2f, ground);
         onRightWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
+        onWall = Physics2D.OverlapCircle(leftCheck.position, 0.2f, ground) || Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
+        wallGrab = onWall && Input.GetKey(KeyCode.LeftArrow);
 
         Walk();
         Jump();
-        Grab();
+        //Grab();
         siwtchAnim();
 
+        if (!isGround && onWall)
+        {
+            wallSlide();
+        }
 
+        if (wallGrab)  //爬墙移动
+        {
+            float y = Input.GetAxis("Vertical");
+            //float yRaw = Input.GetAxisRaw("Vertical");
+            rb.velocity = new Vector2(rb.velocity.x, y * speed);
+        }
     }
 
     private void Walk()
@@ -67,10 +77,9 @@ public class Movement : MonoBehaviour
         }
     }
 
-    private void Grab()
+    /*private void Grab()
     {
-        float y = Input.GetAxis("Vertical");
-        //float yRaw = Input.GetAxisRaw("Vertical");
+        
 
         if (rb.velocity.y != 0 && Input.GetKey(KeyCode.LeftArrow) && onRightWall)
         {
@@ -81,31 +90,30 @@ public class Movement : MonoBehaviour
             anim.SetBool("falling", false);
             anim.SetBool("grabbing", true);
         }
+    }*/
+
+    private void wallSlide()  //贴墙下滑
+    {
+        rb.velocity = new Vector2(rb.velocity.x, -borderSpeed);
     }
-
-
 
 
     private void Jump()
     {
         float fallDown = 2f;  //重力
         float upResis = 2f;  //上升阻力
-        nowHeighth = maxHeighth;
-
-        //float jumpHold = jumpForce * Time.deltaTime;
 
         if (isGround)
         {
             extraJump = 2;
         }
-
         
         if (rb.velocity.y < 0)  //自由落体运动
         {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;  
+            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime; 
         }
 
-        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
+        if (rb.velocity.y > 0 && !isJump)   //添加上升阻力，使其不失重
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
         }
@@ -121,45 +129,6 @@ public class Movement : MonoBehaviour
             rb.velocity = Vector2.up * jumpForce;
             anim.SetBool("jumping", true);
         }
-
-        /*if (Input.GetButtonDown("Jump") && extraJump > 0)
-        {
-            rb.velocity = Vector2.up * jumpForce;
-            extraJump --;
-
-            if (jumpHold >= maxHigh || Input.GetButtonUp("Jump"))
-            {
-                rb.velocity = new Vector2(rb.velocity.x, 0);
-
-            }
-        }*/
-
-        /*if (Input.GetButtonDown("Jump") && isGround)
-        {
-            isJump = true;
-            rb.velocity = Vector2.up * jumpForce;
-            nowHeighth = maxHeighth;
-        }
-
-        
-        if (Input.GetButton("Jump") && isJump)
-        {
-            if (nowHeighth > 0)
-            {
-                rb.velocity = Vector2.up * jumpForce;
-                nowHeighth -= Time.deltaTime;
-            }
-            else
-            {
-                isJump = false;
-            }
-        }
-
-        if (Input.GetButtonUp("Jump"))
-        {
-            isJump = false;
-        }*/
-
     }
 
     private void siwtchAnim()
@@ -184,7 +153,6 @@ public class Movement : MonoBehaviour
             }
         }
         
-
         if (coll.IsTouchingLayers(ground))
         {
             anim.SetBool("falling", false);
