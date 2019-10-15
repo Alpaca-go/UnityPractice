@@ -34,13 +34,11 @@ public class Movement : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    
+
     void Update()
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
-        //onLeftWall = Physics2D.OverlapCircle(leftCheck.position, 0.2f, ground);
-        onRightWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
-        onWall = Physics2D.OverlapCircle(leftCheck.position, 0.2f, ground) || Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
+        onWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
         wallGrab = onWall && Input.GetKey(KeyCode.LeftArrow);
 
         Walk();
@@ -61,7 +59,7 @@ public class Movement : MonoBehaviour
         }
     }
 
-    private void Walk()
+    private void Walk()  //地面移动及转身
     {
         float x = Input.GetAxis("Horizontal");
         float xRaw = Input.GetAxisRaw("Horizontal");
@@ -77,83 +75,69 @@ public class Movement : MonoBehaviour
         }
     }
 
-    /*private void Grab()
-    {
-        
-
-        if (rb.velocity.y != 0 && Input.GetKey(KeyCode.LeftArrow) && onRightWall)
-        {
-            //transform.localScale = new Vector3(1, 1, 1);
-            rb.gravityScale = 0;
-            rb.velocity = new Vector2(0, y * speed);
-            anim.SetBool("jumping", false);
-            anim.SetBool("falling", false);
-            anim.SetBool("grabbing", true);
-        }
-    }*/
-
     private void wallSlide()  //贴墙下滑
     {
         rb.velocity = new Vector2(rb.velocity.x, -borderSpeed);
     }
 
 
-    private void Jump()
+    private void Jump()  //跳跃
     {
         float fallDown = 2f;  //重力
         float upResis = 2f;  //上升阻力
 
-        if (isGround)
+        if (isGround)  //落地重置多段跳
         {
-            extraJump = 2;
-        }
-        
-        if (rb.velocity.y < 0)  //自由落体运动
-        {
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime; 
+            extraJump = 2;  
         }
 
-        if (rb.velocity.y > 0 && Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
+        if (rb.velocity.y < 0)  //自由落体运动
+        {
+            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;
+        }
+
+        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Jump") && extraJump > 0) 
+        if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)  //跳完落地
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            anim.SetBool("jumping", true);
+        }
+
+        if (Input.GetButtonDown("Jump") && extraJump > 0)  //空中多段跳
         {
             rb.velocity = Vector2.up * jumpForce;
             extraJump--;
             anim.SetBool("jumping", true);
         }
-        if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)
-        {
-            rb.velocity = Vector2.up * jumpForce;
-            anim.SetBool("jumping", true);
-        }
     }
 
-    private void siwtchAnim()
+    private void siwtchAnim()  //动画切换
     {
-        if (rb.velocity.y < 0 && !coll.IsTouchingLayers(ground))
+        if (rb.velocity.y < 0 && !coll.IsTouchingLayers(ground)) 
         {
             anim.SetBool("falling", true);
         }
 
         if (anim.GetBool("jumping"))
         {
-            if (rb.velocity.y < 0)
+            if (rb.velocity.y < 0)  //下坠
             {
                 anim.SetBool("jumping", false);
                 anim.SetBool("falling", true);
             }
 
-            if(rb.velocity.y > 0)
+            if (rb.velocity.y > 0)  //起跳
             {
                 anim.SetBool("jumping", true);
                 anim.SetBool("falling", false);
             }
         }
-        
-        if (coll.IsTouchingLayers(ground))
+
+        if (coll.IsTouchingLayers(ground))  //平抛
         {
             anim.SetBool("falling", false);
         }
