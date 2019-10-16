@@ -17,12 +17,14 @@ public class Movement : MonoBehaviour
     public float jumpForce = 3;
     public float borderSpeed = 2;
 
-    private bool isGround;
+    private bool onGround;
     private bool onLeftWall;
     private bool onRightWall;
     private bool onWall;
+    private bool isClimb;
+    private bool isSlide;
     //private bool isJump;
-    private bool wallGrab;
+    //private bool wallGrab;
 
     private int extraJump;
 
@@ -37,25 +39,25 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        isGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
+        onGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
         onWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
-        wallGrab = onWall && Input.GetKey(KeyCode.LeftArrow);
+
+        isSlide = !onGround && onWall;
+        isClimb = !onGround && onWall && Input.GetKey(KeyCode.LeftArrow);
 
         Walk();
         Jump();
         //Grab();
         siwtchAnim();
 
-        if (!isGround && onWall)
+        if (isSlide)
         {
             wallSlide();
         }
 
-        if (wallGrab)  //爬墙移动
+        if (isClimb)
         {
-            float y = Input.GetAxis("Vertical");
-            //float yRaw = Input.GetAxisRaw("Vertical");
-            rb.velocity = new Vector2(rb.velocity.x, y * speed);
+            wallGrab();
         }
     }
 
@@ -78,17 +80,27 @@ public class Movement : MonoBehaviour
     private void wallSlide()  //贴墙下滑
     {
         rb.velocity = new Vector2(rb.velocity.x, -borderSpeed);
+        //anim.SetBool("jumping", false);
+        //anim.SetBool("grabing", true);
     }
 
+    private void wallGrab()  //爬墙移动
+    {
+        float y = Input.GetAxis("Vertical");
+        //float yRaw = Input.GetAxisRaw("Vertical");
+        rb.velocity = new Vector2(rb.velocity.x, y * speed);
+        //anim.SetBool("jumping", false);
+        //anim.SetBool("grabing", true);
+    }
 
     private void Jump()  //跳跃
     {
         float fallDown = 2f;  //重力
         float upResis = 2f;  //上升阻力
 
-        if (isGround)  //落地重置多段跳
+        if (onGround)  //落地重置多段跳
         {
-            extraJump = 2;  
+            extraJump = 2;
         }
 
         if (rb.velocity.y < 0)  //自由落体运动
@@ -101,7 +113,7 @@ public class Movement : MonoBehaviour
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)  //跳完落地
+        if (Input.GetButtonDown("Jump") && extraJump == 0 && onGround)  //跳完落地
         {
             rb.velocity = Vector2.up * jumpForce;
             anim.SetBool("jumping", true);
@@ -117,7 +129,7 @@ public class Movement : MonoBehaviour
 
     private void siwtchAnim()  //动画切换
     {
-        if (rb.velocity.y < 0 && !coll.IsTouchingLayers(ground)) 
+        if (rb.velocity.y < 0 && !coll.IsTouchingLayers(ground))  //平抛
         {
             anim.SetBool("falling", true);
         }
@@ -137,7 +149,7 @@ public class Movement : MonoBehaviour
             }
         }
 
-        if (coll.IsTouchingLayers(ground))  //平抛
+        if (coll.IsTouchingLayers(ground))  //落地
         {
             anim.SetBool("falling", false);
         }
