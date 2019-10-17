@@ -49,7 +49,7 @@ public class Movement : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isSlide) wallSlide();
+        //if (isSlide) wallSlide();
         if (isClimb) wallGrab();
     }
 
@@ -69,20 +69,30 @@ public class Movement : MonoBehaviour
         }
     }
 
-    private void wallSlide()  //贴墙下滑
+    /*private void wallSlide()  //贴墙下滑
     {
         rb.velocity = new Vector2(rb.velocity.x, -borderSpeed);
         anim.SetBool("jumping", false);
-        anim.SetBool("grabing", true);
-    }
+        anim.SetBool("falling", false);
+        anim.SetBool("grabbing", true);
+    }*/
 
     private void wallGrab()  //爬墙移动
     {
         float y = Input.GetAxis("Vertical");
-        float yRaw = Input.GetAxisRaw("Vertical");
-        rb.velocity = new Vector2(rb.velocity.x, y * speed);
-        anim.SetBool("jumping", false);
-        anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
+        //float yRaw = Input.GetAxisRaw("Vertical");
+
+        if (y != 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, y * speed);
+            anim.SetBool("jumping", false);
+            anim.SetBool("falling", false);
+            //anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
+        }
+        /*if (yRaw != 0)
+        {
+            transform.localScale = new Vector3(1, yRaw, 1);
+        }*/
     }
 
     private void Jump()  //跳跃
@@ -121,7 +131,7 @@ public class Movement : MonoBehaviour
 
     private void siwtchAnim()  //动画切换
     {
-        if (rb.velocity.y < 0 && !onGround)  //平抛
+        if (rb.velocity.y < 0 && !onGround && !onWall)  //平抛
         {
             anim.SetBool("falling", true);
         }
