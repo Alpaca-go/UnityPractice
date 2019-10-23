@@ -271,10 +271,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   groundCheck: {fileID: 1181568749}
-  leftCheck: {fileID: 310242708}
   rightCheck: {fileID: 1703699305}
-  speed: 1
-  jumpForce: 200
+  speed_x: 0.1
+  speed_y: 0.3
+  gravity: 0.01
+  grabbing_speed: 0.01
   allowJumpTimes: 2
 --- !u!1 &310242707
 GameObject:
@@ -288,7 +289,7 @@ GameObject:
   m_Layer: 0
   m_Name: leftCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -815,7 +816,7 @@ GameObject:
   m_Layer: 0
   m_Name: groundCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -7701,7 +7702,7 @@ GameObject:
   m_Layer: 0
   m_Name: rightCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
