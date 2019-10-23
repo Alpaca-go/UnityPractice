@@ -65,7 +65,7 @@ public class Movement : MonoBehaviour
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
         onWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
 
-        if (v_y > 0 && !onWall)
+        if (!isGround && !onWall)
         {
             v_y -= gravity;
         }
@@ -73,7 +73,7 @@ public class Movement : MonoBehaviour
         {
             isJump = false;
             v_y = 0;
-            jumpTimes = allowJumpTimes;
+            jumpTimes = allowJumpTimes; 
         }
 
         if (onWall && y != 0f)
@@ -104,7 +104,7 @@ public class Movement : MonoBehaviour
         {
             transform.localScale = new Vector3(v_x > 0f?1:-1, 1, 1);
         }
-        trans.localPosition = new Vector3(trans.localPosition.x + v_x, trans.localPosition.y + v_y, trans.localPosition.z);
+        trans.localPosition = new Vector3(trans.localPosition.x + v_x * Time.fixedDeltaTime, trans.localPosition.y + v_y * Time.fixedDeltaTime, trans.localPosition.z);
     }
 
     private void UpdateAnim()
