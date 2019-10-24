@@ -124,8 +124,8 @@ GameObject:
   - component: {fileID: 105358807}
   - component: {fileID: 105358806}
   - component: {fileID: 105358805}
-  - component: {fileID: 105358804}
   - component: {fileID: 105358809}
+  - component: {fileID: 105358804}
   m_Layer: 0
   m_Name: roboMJ_Spritesheet_0
   m_TagString: Untagged
@@ -133,8 +133,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!58 &105358804
-CircleCollider2D:
+--- !u!61 &105358804
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -146,9 +146,19 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.06, y: -0.52590656}
+  m_Offset: {x: -0.06736013, y: -0.5196347}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3, y: 2}
+    newSize: {x: 3, y: 2}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Radius: 0.46457088
+  m_Size: {x: 0.88297075, y: 0.96073055}
+  m_EdgeRadius: 0
 --- !u!50 &105358805
 Rigidbody2D:
   serializedVersion: 4
@@ -274,6 +284,8 @@ MonoBehaviour:
   rightCheck: {fileID: 1703699305}
   speed: 10
   jumpForce: 15
+  jumpMax: 2
+  jumpHold: 0.1
   borderSpeed: 2
 --- !u!1 &310242707
 GameObject:
@@ -287,7 +299,7 @@ GameObject:
   m_Layer: 0
   m_Name: leftCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -814,7 +826,7 @@ GameObject:
   m_Layer: 0
   m_Name: groundCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -7700,7 +7712,7 @@ GameObject:
   m_Layer: 0
   m_Name: rightCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
