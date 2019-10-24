@@ -13,13 +13,17 @@ public class Movement : MonoBehaviour
 
     public Transform groundCheck, leftCheck, rightCheck;
 
-    public float speed = 10;
-    public float jumpForce = 15;
-    public float borderSpeed = 2;
+    private float speed = 10;
+    private float jumpForce = 5;
+    private float jumpMax = 2;
+    private float jumpHold = 0.1f;
+    private float jumpTime;
+    private float borderSpeed = 2;
+    
 
     private bool onGround, onWall;
     private bool isSlide, isClimb;
-    //private bool isJump;
+    private bool isJump;
     //private bool wallGrab;
 
     private int extraJump;
@@ -97,9 +101,24 @@ public class Movement : MonoBehaviour
 
     private void Jump()  //跳跃
     {
-        if (onGround) extraJump = 2;  //落地重置多段跳
+        //if (onGround) extraJump = 2;  //落地重置多段跳
 
-        if (Input.GetButtonDown("Jump") && extraJump == 0 && onGround)  //跳完落地
+        if (Input.GetButtonDown("Jump") && onGround && !isJump)
+        {
+            isJump = true;
+            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            jumpTime = Time.time + jumpHold;
+            anim.SetBool("jumping", true);
+        }
+        else if (isJump)
+        {
+            if (Input.GetButton("Jump"))
+                rb.AddForce(new Vector2(0, jumpMax), ForceMode2D.Impulse);
+            if (jumpTime < Time.time)
+                isJump = false;
+        }
+
+        /*if (Input.GetButtonDown("Jump") && extraJump == 0 && onGround)  //跳完落地
         {
             rb.velocity = Vector2.up * jumpForce;
             anim.SetBool("jumping", true);
@@ -110,12 +129,12 @@ public class Movement : MonoBehaviour
             rb.velocity = Vector2.up * jumpForce;
             extraJump--;
             anim.SetBool("jumping", true);
-        }
+        }*/
     }
 
     private void freeFall()  //优化重力
     {
-        float fallDown = 2f;  //重力修正
+        float fallDown = 3f;  //重力修正
         float upResis = 2f;  //上升阻力
 
         if (rb.velocity.y < 0)  //自由落体运动
