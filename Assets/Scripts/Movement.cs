@@ -5,13 +5,13 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     private Rigidbody2D rb;
-    private Collider2D coll;
+    private BoxCollider2D coll;
     private Animator anim;
 
     public LayerMask ground;
     //public LayerMask wall;
 
-    public Transform groundCheck, leftCheck, rightCheck;
+    //public Transform groundCheck, leftCheck, rightCheck;
 
     private float speed = 10;
     private float x, xRaw;
@@ -22,31 +22,31 @@ public class Movement : MonoBehaviour
     private float jumpTime;
 
     private float borderSpeed = 2;
-    
+
     private bool onGround, onWall;
-    private bool isSlide, isClimb;
-    private bool isJump;
+    private bool isSlide;
+    private bool isJump, isClimb, isBlock;
     //private bool wallGrab;
 
     private int extraJump;
 
 
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        coll = GetComponent<Collider2D>();
+        coll = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
+
     }
 
 
     void Update()
     {
-        onGround = Physics2D.OverlapCircle(groundCheck.position, 0.2f, ground);
-        onWall = Physics2D.OverlapCircle(rightCheck.position, 0.2f, ground);
-
-        isSlide = !onGround && onWall;
-        isClimb = !onGround && onWall && Input.GetKey(KeyCode.LeftArrow);
-
+        //isSlide = !onGround && onWall;
+        //isClimb = !onGround && onWall && Input.GetKey(KeyCode.LeftArrow);
+        rayCheck();
         Walk();
         Jump();
         multiJump();
@@ -60,8 +60,35 @@ public class Movement : MonoBehaviour
         if (isClimb) wallClimb();
     }
 
+    RaycastHit2D Raycast(Vector2 offSet, Vector2 rayDir, float length, LayerMask layer)
+    {
+        Vector2 pos = transform.position;
+        RaycastHit2D hit = Physics2D.Raycast(pos + offSet, rayDir, length, layer);
+        Debug.DrawRay(pos + offSet, rayDir * length);
+        return hit;
+    }
+
+    private void rayCheck()
+    {
+        Vector2 coo = coll.offset;
+        Vector2 cos = coll.size;
+
+        RaycastHit2D leftFoot = Raycast(new Vector2(-cos.x / 2 + coo.x, -cos.y), Vector2.down, 0.2f, ground);
+        RaycastHit2D rightFoot = Raycast(new Vector2(cos.x / 2 + coo.x, -cos.y), Vector2.down, 0.2f, ground);
+        if (leftFoot || rightFoot) onGround = true;
+        else onGround = false;
+
+        RaycastHit2D leftHead = Raycast(new Vector2(-cos.x / 2 + coo.x, 0), Vector2.up, 0.2f, ground);
+        RaycastHit2D rightHead = Raycast(new Vector2(cos.x / 2 + coo.x, 0), Vector2.up, 0.2f, ground);
+        if (leftHead || rightHead) isBlock = true;
+        else isBlock = false;
+
+        RaycastHit2D sightRay = Raycast(new Vector2(cos.x / 2 + coo.x, 0), Vector2.right, 0.2f, ground);
+    }
+
     private void Walk()  //地面移动
     {
+        if (isClimb) return;
         x = Input.GetAxis("Horizontal");
         if (x != 0)
         {
@@ -123,23 +150,6 @@ public class Movement : MonoBehaviour
         }
     }*/
 
-    /*private void Jump()  //蓄力跳跃
-    {
-        if (onGround) isJump = false;
-        if (Input.GetButtonDown("Jump") && !isJump && extraJump > 0)
-        {
-            isJump = true;
-            rb.velocity = Vector2.up * jumpForce;
-            jumpTime = Time.time + jumpHold;
-            anim.SetBool("jumping", true);
-        }
-        else if (isJump)
-        {
-            if (Input.GetButton("Jump")) rb.velocity = Vector2.up * jumpMax;
-            if (jumpTime < Time.time) isJump = false;
-        }
-    }*/
-
     private void Jump()  //普通跳跃
     {
         if (onGround) isJump = false;
@@ -192,4 +202,6 @@ public class Movement : MonoBehaviour
         if (onGround)  //落地
             anim.SetBool("falling", false);
     }
+
+    
 }
