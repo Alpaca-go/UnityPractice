@@ -21,11 +21,9 @@ public class Movement : MonoBehaviour
     private float jumpHold = 0.1f;
     private float jumpTime;
 
-    private float borderSpeed = 2;
-
     private bool onGround, onWall;
     private bool isSlide;
-    private bool isJump, isClimb, isBlock;
+    private bool isJump, isBlock;
     //private bool wallGrab;
 
     private int extraJump;
@@ -44,8 +42,6 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        //isSlide = !onGround && onWall;
-        //isClimb = !onGround && onWall && Input.GetKey(KeyCode.LeftArrow);
         rayCheck();
         Walk();
         Jump();
@@ -57,7 +53,7 @@ public class Movement : MonoBehaviour
     void FixedUpdate()
     {
         //if (isSlide) wallSlide();
-        if (isClimb) wallClimb();
+        if (onWall) wallClimb();
     }
 
     RaycastHit2D Raycast(Vector2 offSet, Vector2 rayDir, float length, LayerMask layer)
@@ -83,12 +79,15 @@ public class Movement : MonoBehaviour
         if (leftHead || rightHead) isBlock = true;
         else isBlock = false;
 
-        RaycastHit2D sightRay = Raycast(new Vector2(cos.x / 2 + coo.x, 0), Vector2.right, 0.2f, ground);
+        RaycastHit2D leftSight = Raycast(new Vector2(cos.x / 2 + coo.x, 0), Vector2.right, 0.2f, ground);
+        RaycastHit2D rightSight = Raycast(new Vector2(-cos.x / 2 + coo.x, 0), Vector2.left, 0.2f, ground);
+        if ((leftSight && !onGround) || (rightSight && !onGround)) onWall = true;
+        else onWall = false;
     }
 
     private void Walk()  //地面移动
     {
-        if (isClimb) return;
+        if (onWall) return;
         x = Input.GetAxis("Horizontal");
         if (x != 0)
         {
@@ -100,8 +99,7 @@ public class Movement : MonoBehaviour
 
     private void Flip()  //转身
     {
-        int side;
-        side = (onWall) ? -1 : 1;
+        int side = (onWall) ? -1 : 1;
         xRaw = Input.GetAxisRaw("Horizontal");
         if (xRaw != 0) transform.localScale = new Vector3(xRaw * side, 1, 1);
     }
@@ -117,7 +115,6 @@ public class Movement : MonoBehaviour
     private void wallClimb()  //爬墙移动
     {
         float y = Input.GetAxis("Vertical");
-        rb.gravityScale = 0;
         //float yRaw = Input.GetAxisRaw("Vertical");
 
         anim.SetBool("jumping", false);
@@ -130,6 +127,7 @@ public class Movement : MonoBehaviour
             
             //anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
         }
+        Flip();
     }
 
     /*private void Jump()  //蓄力跳跃
@@ -177,6 +175,9 @@ public class Movement : MonoBehaviour
 
         if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
+
+        if (onWall) rb.gravityScale = 0;
+        else rb.gravityScale = 1;
     }
 
     private void siwtchAnim()  //动画切换
