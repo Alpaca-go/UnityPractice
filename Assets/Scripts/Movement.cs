@@ -17,9 +17,7 @@ public class Movement : MonoBehaviour
     private float x, xRaw;
 
     private float jumpForce = 15;
-    private float jumpMax = 2;
-    private float jumpHold = 0.1f;
-    private float jumpTime;
+    
 
     private bool onGround, onWall;
     private bool isSlide;
@@ -68,19 +66,22 @@ public class Movement : MonoBehaviour
     {
         Vector2 coo = coll.offset;
         Vector2 cos = coll.size;
+        
+        float dir = transform.localScale.x;
+        Vector2 climbDir = new Vector2(dir, 0);
 
-        RaycastHit2D leftFoot = Raycast(new Vector2(-cos.x / 2 + coo.x, -cos.y), Vector2.down, 0.2f, ground);
-        RaycastHit2D rightFoot = Raycast(new Vector2(cos.x / 2 + coo.x, -cos.y), Vector2.down, 0.2f, ground);
+        RaycastHit2D leftFoot = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, -cos.y), Vector2.down, 0.2f, ground);
+        RaycastHit2D rightFoot = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, -cos.y), Vector2.down, 0.2f, ground);
         if (leftFoot || rightFoot) onGround = true;
         else onGround = false;
 
-        RaycastHit2D leftHead = Raycast(new Vector2(-cos.x / 2 + coo.x, 0), Vector2.up, 0.2f, ground);
-        RaycastHit2D rightHead = Raycast(new Vector2(cos.x / 2 + coo.x, 0), Vector2.up, 0.2f, ground);
+        RaycastHit2D leftHead = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, 0), Vector2.up, 0.2f, ground);
+        RaycastHit2D rightHead = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, 0), Vector2.up, 0.2f, ground);
         if (leftHead || rightHead) isBlock = true;
         else isBlock = false;
 
-        RaycastHit2D leftSight = Raycast(new Vector2(cos.x / 2 + coo.x, 0), Vector2.right, 0.2f, ground);
-        RaycastHit2D rightSight = Raycast(new Vector2(-cos.x / 2 + coo.x, 0), Vector2.left, 0.2f, ground);
+        RaycastHit2D leftSight = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, 0), -climbDir, 0.2f, ground);
+        RaycastHit2D rightSight = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, 0), climbDir, 0.2f, ground);
         if ((leftSight && !onGround) || (rightSight && !onGround)) onWall = true;
         else onWall = false;
     }
@@ -132,6 +133,10 @@ public class Movement : MonoBehaviour
 
     /*private void Jump()  //蓄力跳跃
     {
+        float jumpMax = 2;
+        float jumpHold = 0.1f;
+        float jumpTime;
+
         if (Input.GetButtonDown("Jump") && !isJump && extraJump > 0)
         {
             isJump = true;
