@@ -15,6 +15,7 @@ public class Movement : MonoBehaviour
 
     private float speed = 10;
     private float x, xRaw;
+    private float y, yRaw;
 
     private float jumpForce = 15;
     
@@ -46,6 +47,9 @@ public class Movement : MonoBehaviour
         multiJump();
         freeFall();
         siwtchAnim();
+
+        xRaw = Input.GetAxisRaw("Horizontal");
+        yRaw = Input.GetAxisRaw("Vertical");
     }
 
     void FixedUpdate()
@@ -82,8 +86,12 @@ public class Movement : MonoBehaviour
 
         RaycastHit2D leftSight = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, 0), -climbDir, 0.2f, ground);
         RaycastHit2D rightSight = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, 0), climbDir, 0.2f, ground);
-        if ((leftSight && !onGround) || (rightSight && !onGround)) onWall = true;
-        else onWall = false;
+        if (rightSight && !onGround)
+        {
+            onWall = true;
+            if (xRaw != 0) transform.localScale = new Vector3(-xRaw, 1, 1);
+        } 
+        else if (onGround) onWall = false;
     }
 
     private void Walk()  //地面移动
@@ -95,15 +103,16 @@ public class Movement : MonoBehaviour
             rb.velocity = new Vector2(x * speed, rb.velocity.y);
             anim.SetFloat("walking", Mathf.Abs(xRaw));
         }
-        Flip();
+        
+        if (xRaw != 0) transform.localScale = new Vector3(xRaw, 1, 1);
     }
 
-    private void Flip()  //转身
+    /*private void Flip()  //转身
     {
         int side = (onWall) ? -1 : 1;
         xRaw = Input.GetAxisRaw("Horizontal");
         if (xRaw != 0) transform.localScale = new Vector3(xRaw * side, 1, 1);
-    }
+    }*/
 
     /*private void wallSlide()  //贴墙下滑
     {
@@ -113,23 +122,31 @@ public class Movement : MonoBehaviour
         anim.SetBool("grabbing", true);
     }*/
 
-    private void wallClimb()  //爬墙移动
+    private void wallClimb()  //爬墙
     {
-        float y = Input.GetAxis("Vertical");
-        //float yRaw = Input.GetAxisRaw("Vertical");
-
         anim.SetBool("jumping", false);
         anim.SetBool("falling", false);
         anim.SetBool("grabbing", true);
 
+        y = Input.GetAxis("Vertical");
         if (y != 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, y * speed);
-            
-            //anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
+            anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
+            rb.gravityScale = 0;
         }
-        Flip();
     }
+
+    /*private void wallMove()  //爬墙移动
+    {
+        float y = Input.GetAxis("Vertical");
+        if (y != 0)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, y * speed);
+        }
+
+        anim.SetFloat("grabMoving", Mathf.Abs(xRaw));
+    }*/
 
     /*private void Jump()  //蓄力跳跃
     {
@@ -155,7 +172,7 @@ public class Movement : MonoBehaviour
 
     private void Jump()  //普通跳跃
     {
-        if (onGround) isJump = false;
+        if (onGround || onWall) isJump = false;
         if (Input.GetButtonDown("Jump") && ((onGround && !isJump) || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
         {
             isJump = true;
@@ -166,7 +183,7 @@ public class Movement : MonoBehaviour
 
     private void multiJump()  //多段跳跃
     {
-        if (onGround) extraJump = 2;  //连跳次数
+        if (onGround || onWall) extraJump = 2;  //连跳次数
         if (Input.GetButtonDown("Jump") && extraJump > 0) extraJump--;
     }
 
