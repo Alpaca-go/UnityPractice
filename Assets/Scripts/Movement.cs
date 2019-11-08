@@ -86,7 +86,7 @@ public class Movement : MonoBehaviour
 
         RaycastHit2D leftSight = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, 0), -climbDir, 0.2f, ground);
         RaycastHit2D rightSight = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, 0), climbDir, 0.2f, ground);
-        if (rightSight && !onGround)
+        if ((rightSight && !onGround) || (leftSight && !onGround))
         {
             onWall = true;
             if (xRaw != 0) transform.localScale = new Vector3(-xRaw, 1, 1);
@@ -133,7 +133,6 @@ public class Movement : MonoBehaviour
         {
             rb.velocity = new Vector2(rb.velocity.x, y * speed);
             anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
-            rb.gravityScale = 0;
         }
     }
 
@@ -187,6 +186,14 @@ public class Movement : MonoBehaviour
         if (Input.GetButtonDown("Jump") && extraJump > 0) extraJump--;
     }
 
+    /*private void wallJump()
+    {
+        if (Input.GetButtonDown("Jump") && )
+        {
+            onWall = false;
+        }
+    }*/
+
     private void freeFall()  //优化重力
     {
         float fallDown = 2f;  //重力修正
@@ -223,7 +230,10 @@ public class Movement : MonoBehaviour
         }
 
         if (onGround)  //落地
+        {
             anim.SetBool("falling", false);
+            //anim.SetBool("grabbing", false);
+        }
     }
 
     
