@@ -5,13 +5,8 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     private Rigidbody2D rb;
-    private BoxCollider2D coll;
+    private CollisionCheck coll;
     private Animator anim;
-
-    public LayerMask ground;
-    //public LayerMask wall;
-
-    //public Transform groundCheck, leftCheck, rightCheck;
 
     private float speed = 10;
     private float x, xRaw;
@@ -19,8 +14,6 @@ public class Movement : MonoBehaviour
 
     private float jumpForce = 15;
     
-
-    private bool onGround, onWall;
     private bool isSlide;
     private bool isJump, isBlock;
     //private bool wallGrab;
@@ -33,7 +26,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        coll = GetComponent<BoxCollider2D>();
+        coll = GetComponent<CollisionCheck>();
         anim = GetComponent<Animator>();
 
     }
@@ -41,7 +34,6 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        //rayCheck();
         Walk();
         Jump();
         multiJump();
@@ -55,48 +47,12 @@ public class Movement : MonoBehaviour
     void FixedUpdate()
     {
         //if (isSlide) wallSlide();
-        if (onWall) wallClimb();
+        if (coll.onWall) wallClimb();
     }
-
-    RaycastHit2D Raycast(Vector2 offSet, Vector2 rayDir, float length, LayerMask layer)
-    {
-        Vector2 pos = transform.position;
-        RaycastHit2D hit = Physics2D.Raycast(pos + offSet, rayDir, length, layer);
-        Debug.DrawRay(pos + offSet, rayDir * length);
-        return hit;
-    }
-
-    /*private void rayCheck()
-    {
-        Vector2 coo = coll.offset;
-        Vector2 cos = coll.size;
-        
-        float dir = transform.localScale.x;
-        Vector2 climbDir = new Vector2(dir, 0);
-
-        RaycastHit2D leftFoot = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, -cos.y), Vector2.down, 0.2f, ground);
-        RaycastHit2D rightFoot = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, -cos.y), Vector2.down, 0.2f, ground);
-        if (leftFoot || rightFoot) onGround = true;
-        else onGround = false;
-
-        RaycastHit2D leftHead = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, 0), Vector2.up, 0.2f, ground);
-        RaycastHit2D rightHead = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, 0), Vector2.up, 0.2f, ground);
-        if (leftHead || rightHead) isBlock = true;
-        else isBlock = false;
-
-        RaycastHit2D leftSight = Raycast(new Vector2((-cos.x / 2 + coo.x) * dir, 0), -climbDir, 0.2f, ground);
-        RaycastHit2D rightSight = Raycast(new Vector2((cos.x / 2 + coo.x) * dir, 0), climbDir, 0.2f, ground);
-        if ((rightSight && !onGround) || (leftSight && !onGround))
-        {
-            onWall = true;
-            if (xRaw != 0) transform.localScale = new Vector3(-xRaw, 1, 1);
-        } 
-        else if (onGround) onWall = false;
-    }*/
 
     private void Walk()  //地面移动
     {
-        if (onWall) return;
+        if (coll.onWall) return;
         x = Input.GetAxis("Horizontal");
         if (x != 0)
         {
@@ -106,21 +62,6 @@ public class Movement : MonoBehaviour
         
         if (xRaw != 0) transform.localScale = new Vector3(xRaw, 1, 1);
     }
-
-    /*private void Flip()  //转身
-    {
-        int side = (onWall) ? -1 : 1;
-        xRaw = Input.GetAxisRaw("Horizontal");
-        if (xRaw != 0) transform.localScale = new Vector3(xRaw * side, 1, 1);
-    }*/
-
-    /*private void wallSlide()  //贴墙下滑
-    {
-        rb.velocity = new Vector2(rb.velocity.x, -borderSpeed);
-        anim.SetBool("jumping", false);
-        anim.SetBool("falling", false);
-        anim.SetBool("grabbing", true);
-    }*/
 
     private void wallClimb()  //爬墙
     {
@@ -135,17 +76,6 @@ public class Movement : MonoBehaviour
             anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
         }
     }
-
-    /*private void wallMove()  //爬墙移动
-    {
-        float y = Input.GetAxis("Vertical");
-        if (y != 0)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, y * speed);
-        }
-
-        anim.SetFloat("grabMoving", Mathf.Abs(xRaw));
-    }*/
 
     /*private void Jump()  //蓄力跳跃
     {
@@ -171,8 +101,8 @@ public class Movement : MonoBehaviour
 
     private void Jump()  //普通跳跃
     {
-        if (onGround || onWall) isJump = false;
-        if (Input.GetButtonDown("Jump") && ((onGround && !isJump) || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
+        if (coll.onGround || coll.onWall) isJump = false;
+        if (Input.GetButtonDown("Jump") && ((coll.onGround && !isJump) || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
         {
             isJump = true;
             rb.velocity = Vector2.up * jumpForce;
@@ -182,7 +112,7 @@ public class Movement : MonoBehaviour
 
     private void multiJump()  //多段跳跃
     {
-        if (onGround || onWall) extraJump = 2;  //连跳次数
+        if (coll.onGround || coll.onWall) extraJump = 2;  //连跳次数
         if (Input.GetButtonDown("Jump") && extraJump > 0) extraJump--;
     }
 
@@ -205,13 +135,13 @@ public class Movement : MonoBehaviour
         if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
 
-        if (onWall) rb.gravityScale = 0;
+        if (coll.onWall) rb.gravityScale = 0;
         else rb.gravityScale = 1;
     }
 
     private void siwtchAnim()  //动画切换
     {
-        if (rb.velocity.y < 0 && !onGround && !onWall)  //平抛
+        if (rb.velocity.y < 0 && !coll.onGround && !coll.onWall)  //平抛
             anim.SetBool("falling", true);
 
         if (anim.GetBool("jumping"))
@@ -229,7 +159,7 @@ public class Movement : MonoBehaviour
             }
         }
 
-        if (onGround)  //落地
+        if (coll.onGround)  //落地
         {
             anim.SetBool("falling", false);
             //anim.SetBool("grabbing", false);
