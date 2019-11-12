@@ -41,7 +41,7 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        rayCheck();
+        //rayCheck();
         Walk();
         Jump();
         multiJump();
@@ -66,7 +66,7 @@ public class Movement : MonoBehaviour
         return hit;
     }
 
-    private void rayCheck()
+    /*private void rayCheck()
     {
         Vector2 coo = coll.offset;
         Vector2 cos = coll.size;
@@ -92,7 +92,7 @@ public class Movement : MonoBehaviour
             if (xRaw != 0) transform.localScale = new Vector3(-xRaw, 1, 1);
         } 
         else if (onGround) onWall = false;
-    }
+    }*/
 
     private void Walk()  //地面移动
     {
