@@ -5,12 +5,13 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     private Rigidbody2D rb;
-    private CollisionCheck coll;
+    private CollCheck coll;
     private Animator anim;
 
     private float speed = 10;
     private float x, xRaw;
     private float y, yRaw;
+    public Vector2 dir;
 
     private float jumpForce = 15;
     
@@ -26,22 +27,24 @@ public class Movement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        coll = GetComponent<CollisionCheck>();
+        coll = GetComponent<CollCheck>();
         anim = GetComponent<Animator>();
 
     }
 
-
     void Update()
     {
-        Walk();
+        x = Input.GetAxis("Horizontal");
+        y = Input.GetAxis("Vertical");
+        xRaw = Input.GetAxisRaw("Horizontal");
+        yRaw = Input.GetAxisRaw("Vertical");
+
+        dir = new Vector2(x, y);
+
+        Walk(dir);
         Jump();
         multiJump();
         freeFall();
-        siwtchAnim();
-
-        xRaw = Input.GetAxisRaw("Horizontal");
-        yRaw = Input.GetAxisRaw("Vertical");
     }
 
     void FixedUpdate()
@@ -50,17 +53,14 @@ public class Movement : MonoBehaviour
         if (coll.onWall) wallClimb();
     }
 
-    private void Walk()  //地面移动
+    private void Walk(Vector2 dir)  //地面移动
     {
         if (coll.onWall) return;
-        x = Input.GetAxis("Horizontal");
         if (x != 0)
         {
-            rb.velocity = new Vector2(x * speed, rb.velocity.y);
+            rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
             anim.SetFloat("walking", Mathf.Abs(xRaw));
         }
-        
-        if (xRaw != 0) transform.localScale = new Vector3(xRaw, 1, 1);
     }
 
     private void wallClimb()  //爬墙
@@ -138,33 +138,4 @@ public class Movement : MonoBehaviour
         if (coll.onWall) rb.gravityScale = 0;
         else rb.gravityScale = 1;
     }
-
-    private void siwtchAnim()  //动画切换
-    {
-        if (rb.velocity.y < 0 && !coll.onGround && !coll.onWall)  //平抛
-            anim.SetBool("falling", true);
-
-        if (anim.GetBool("jumping"))
-        {
-            if (rb.velocity.y < 0)  //下坠
-            {
-                anim.SetBool("jumping", false);
-                anim.SetBool("falling", true);
-            }
-
-            if (rb.velocity.y > 0)  //起跳
-            {
-                anim.SetBool("jumping", true);
-                anim.SetBool("falling", false);
-            }
-        }
-
-        if (coll.onGround)  //落地
-        {
-            anim.SetBool("falling", false);
-            //anim.SetBool("grabbing", false);
-        }
-    }
-
-    
 }
