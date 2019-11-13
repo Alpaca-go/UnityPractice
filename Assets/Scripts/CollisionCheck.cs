@@ -11,10 +11,8 @@ public class CollisionCheck : MonoBehaviour
 
     public int wallDir;
 
-    public Vector2 leftSight, rightSight;
-    public Vector2 leftFoot, rightFoot;
-
-    private Color debugCollisionColor = Color.red;
+    private Vector2 leftSight, rightSight;
+    private Vector2 leftFoot, rightFoot;
 
     void Start()
     {
@@ -38,8 +36,6 @@ public class CollisionCheck : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-
-        var positions = new Vector2[] { leftSight, rightSight, leftFoot, rightFoot };
 
         Gizmos.DrawWireSphere((Vector2)transform.position + leftSight, 0.1f);
         Gizmos.DrawWireSphere((Vector2)transform.position + rightSight, 0.1f);
