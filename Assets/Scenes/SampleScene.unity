@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 105358809}
   - component: {fileID: 105358804}
   - component: {fileID: 105358810}
+  - component: {fileID: 105358811}
   m_Layer: 0
   m_Name: roboMJ_Spritesheet_0
   m_TagString: Untagged
@@ -283,9 +284,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5295085544558e14782ef10658968d9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ground:
-    serializedVersion: 2
-    m_Bits: 256
+  dir: {x: 0, y: 0}
+  isSlide: 0
+  isClimb: 0
+  isJump: 0
+  isBlock: 0
 --- !u!114 &105358810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,16 +304,24 @@ MonoBehaviour:
   ground:
     serializedVersion: 2
     m_Bits: 256
-  coll: {fileID: 0}
   onGround: 0
   onWall: 0
   onLeftWall: 0
   onRightWall: 0
   wallDir: 0
-  leftSight: {x: 0, y: 0}
-  rightSight: {x: 0, y: 0}
-  leftFoot: {x: 0, y: 0}
-  rightFoot: {x: 0, y: 0}
+--- !u!114 &105358811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 105358803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5119d00ef0ae3814fa9e5edd4666d2ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sr: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0

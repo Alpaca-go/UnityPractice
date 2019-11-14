@@ -6,7 +6,7 @@ public class Movement : MonoBehaviour
 {
     private Rigidbody2D rb;
     private CollCheck coll;
-    private Animator anim;
+    private SwitchAnim anim;
 
     private float speed = 10;
     private float x, xRaw;
@@ -15,12 +15,12 @@ public class Movement : MonoBehaviour
 
     private float jumpForce = 15;
     
-    private bool isSlide;
-    private bool isJump, isBlock;
+    public bool isSlide, isClimb;
+    public bool isJump, isBlock;
     //private bool wallGrab;
 
     private int extraJump;
-
+    public int side = 1;
 
 
 
@@ -28,7 +28,7 @@ public class Movement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<CollCheck>();
-        anim = GetComponent<Animator>();
+        anim = GetComponent<SwitchAnim>();
 
     }
 
@@ -41,7 +41,12 @@ public class Movement : MonoBehaviour
 
         dir = new Vector2(x, y);
 
+
+        
         Walk(dir);
+        anim.basicMove(x, y, rb.velocity.y);
+
+        dirCheck();
         Jump();
         multiJump();
         freeFall();
@@ -50,31 +55,32 @@ public class Movement : MonoBehaviour
     void FixedUpdate()
     {
         //if (isSlide) wallSlide();
+        //if (coll.onGround) groundTouch();
         if (coll.onWall) wallClimb();
     }
 
+    private void dirCheck()
+    {
+        if (x > 0) side = 1;
+        if (x < 0) side = -1;
+        anim.Flip(side);
+    }
+
+    private void groundTouch()
+    {
+        side = anim.sr.flipX ? -1 : 1;
+    }
     private void Walk(Vector2 dir)  //地面移动
     {
         if (coll.onWall) return;
-        if (x != 0)
-        {
-            rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
-            anim.SetFloat("walking", Mathf.Abs(xRaw));
-        }
+        rb.velocity = new Vector2(dir.x * speed, rb.velocity.y); 
     }
 
     private void wallClimb()  //爬墙
     {
-        anim.SetBool("jumping", false);
-        anim.SetBool("falling", false);
-        anim.SetBool("grabbing", true);
-
+        isClimb = true;
         y = Input.GetAxis("Vertical");
-        if (y != 0)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, y * speed);
-            anim.SetFloat("grabMoving", Mathf.Abs(yRaw));
-        }
+        rb.velocity = new Vector2(rb.velocity.x, y * speed);
     }
 
     /*private void Jump()  //蓄力跳跃
@@ -106,7 +112,6 @@ public class Movement : MonoBehaviour
         {
             isJump = true;
             rb.velocity = Vector2.up * jumpForce;
-            anim.SetBool("jumping", true);
         }
     }
 
