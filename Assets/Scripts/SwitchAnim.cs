@@ -22,14 +22,14 @@ public class SwitchAnim : MonoBehaviour
         anim.SetBool("onGround", coll.onGround);
         anim.SetBool("onWall", coll.onWall);
         anim.SetBool("onRightWall", coll.onRightWall);
-        /*anim.SetBool("wallGrab", move.wallGrab);
-        anim.SetBool("canMove", move.canMove);*/
+        anim.SetBool("isClimb", move.isClimb);
+        /*anim.SetBool("canMove", move.canMove);*/
     }
 
     public void basicMove(float x, float y, float vertiVel)  //动画切换
     {
         anim.SetFloat("horiAxis", Mathf.Abs(x));
-        anim.SetFloat("vertiAxis", y);
+        anim.SetFloat("vertiAxis", Mathf.Abs(y));
         anim.SetFloat("vertiVel", vertiVel);
     }
 

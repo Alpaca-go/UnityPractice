@@ -15,7 +15,7 @@ public class Movement : MonoBehaviour
 
     private float jumpForce = 15;
     
-    public bool isSlide, isClimb;
+    public bool isMove, isClimb;
     public bool isJump, isBlock;
     //private bool wallGrab;
 
@@ -41,8 +41,6 @@ public class Movement : MonoBehaviour
 
         dir = new Vector2(x, y);
 
-
-        
         Walk(dir);
         anim.basicMove(x, y, rb.velocity.y);
 
@@ -76,11 +74,11 @@ public class Movement : MonoBehaviour
         rb.velocity = new Vector2(dir.x * speed, rb.velocity.y); 
     }
 
-    private void wallClimb()  //爬墙
+    public void wallClimb()  //爬墙
     {
+        float climb = 4;
         isClimb = true;
-        y = Input.GetAxis("Vertical");
-        rb.velocity = new Vector2(rb.velocity.x, y * speed);
+        rb.velocity = new Vector2(rb.velocity.x, dir.y * climb);
     }
 
     /*private void Jump()  //蓄力跳跃
@@ -112,12 +110,13 @@ public class Movement : MonoBehaviour
         {
             isJump = true;
             rb.velocity = Vector2.up * jumpForce;
+            anim.SetTrigger("jump");
         }
     }
 
     private void multiJump()  //多段跳跃
     {
-        if (coll.onGround || coll.onWall) extraJump = 2;  //连跳次数
+        if (coll.onGround || coll.onWall) extraJump = 1;  //连跳次数
         if (Input.GetButtonDown("Jump") && extraJump > 0) extraJump--;
     }
 
