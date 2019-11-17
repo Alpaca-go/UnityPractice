@@ -8,7 +8,6 @@ public class Movement : MonoBehaviour
     private CollCheck coll;
     private SwitchAnim anim;
 
-    private float speed = 10;
     private float x, xRaw;
     private float y, yRaw;
     public Vector2 dir;
@@ -43,24 +42,38 @@ public class Movement : MonoBehaviour
 
         Walk(dir);
         anim.basicMove(x, y, rb.velocity.y);
-
+        if (coll.onWall)
+        {
+            wallClimb(dir);
+            anim.basicMove(x, y, Mathf.Abs(rb.velocity.y));
+        }
+        
+        
         dirCheck();
         Jump();
         multiJump();
         freeFall();
+        CollCheck();
     }
 
     void FixedUpdate()
     {
         //if (isSlide) wallSlide();
         //if (coll.onGround) groundTouch();
-        if (coll.onWall) wallClimb();
+        /*if (coll.onWall)
+        {
+            wallClimb(dir);
+            anim.basicMove(x, y, rb.velocity.y);
+        }*/
     }
 
     private void dirCheck()
     {
         if (x > 0) side = 1;
         if (x < 0) side = -1;
+        if (side == -1 && coll.onLeftWall && !coll.onGround) side = 1;
+        if (side == 1 && coll.onRightWall && !coll.onGround) side = -1;
+
         anim.Flip(side);
     }
 
@@ -70,14 +83,14 @@ public class Movement : MonoBehaviour
     }
     private void Walk(Vector2 dir)  //地面移动
     {
-        if (coll.onWall) return;
-        rb.velocity = new Vector2(dir.x * speed, rb.velocity.y); 
+        if (isClimb) return;
+        float speed = 10;
+        rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
     }
 
-    public void wallClimb()  //爬墙
+    public void wallClimb(Vector2 dir)  //爬墙
     {
         float climb = 4;
-        isClimb = true;
         rb.velocity = new Vector2(rb.velocity.x, dir.y * climb);
     }
 
@@ -116,7 +129,7 @@ public class Movement : MonoBehaviour
 
     private void multiJump()  //多段跳跃
     {
-        if (coll.onGround || coll.onWall) extraJump = 1;  //连跳次数
+        if (coll.onGround || coll.onWall) extraJump = 2;  //连跳次数
         if (Input.GetButtonDown("Jump") && extraJump > 0) extraJump--;
     }
 
@@ -141,5 +154,11 @@ public class Movement : MonoBehaviour
 
         if (coll.onWall) rb.gravityScale = 0;
         else rb.gravityScale = 1;
+    }
+
+    private void CollCheck()
+    {
+        if (coll.onWall && !coll.onGround) isClimb = true;
+        else isClimb = false;
     }
 }
