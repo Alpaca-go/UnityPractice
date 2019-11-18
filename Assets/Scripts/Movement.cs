@@ -42,7 +42,7 @@ public class Movement : MonoBehaviour
 
         Walk(dir);
         anim.basicMove(x, y, rb.velocity.y);
-        if (coll.onWall)
+        if (isClimb)
         {
             wallClimb(dir);
             anim.basicMove(x, y, Mathf.Abs(rb.velocity.y));
@@ -77,10 +77,6 @@ public class Movement : MonoBehaviour
         anim.Flip(side);
     }
 
-    private void groundTouch()
-    {
-        side = anim.sr.flipX ? -1 : 1;
-    }
     private void Walk(Vector2 dir)  //地面移动
     {
         if (isClimb) return;
@@ -90,6 +86,7 @@ public class Movement : MonoBehaviour
 
     public void wallClimb(Vector2 dir)  //爬墙
     {
+        //if (isBlock) return;
         float climb = 4;
         rb.velocity = new Vector2(rb.velocity.x, dir.y * climb);
     }
@@ -152,13 +149,17 @@ public class Movement : MonoBehaviour
         if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
 
-        if (coll.onWall) rb.gravityScale = 0;
+        if (isClimb) rb.gravityScale = 0;
         else rb.gravityScale = 1;
     }
 
     private void CollCheck()
     {
-        if (coll.onWall && !coll.onGround) isClimb = true;
+        if (coll.onWall && !coll.onGround)
+        {
+            isClimb = true;
+            isBlock = coll.onBlock ? false : true;
+        }
         else isClimb = false;
     }
 }
