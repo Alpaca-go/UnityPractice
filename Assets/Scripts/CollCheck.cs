@@ -20,8 +20,8 @@ public class CollCheck : MonoBehaviour
     {
         leftSight = new Vector2(-0.45f, 0.45f);
         rightSight = new Vector2(0.45f, 0.45f);
-        leftBody = new Vector2(-0.45f, -0.1f);
-        rightBody = new Vector2(0.45f, -0.1f);
+        leftBody = new Vector2(-0.45f, -0.9f);
+        rightBody = new Vector2(0.45f, -0.9f);
         leftFoot = new Vector2(-0.35f, -1);
         rightFoot = new Vector2(0.35f, -1);
     }

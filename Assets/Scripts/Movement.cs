@@ -14,8 +14,8 @@ public class Movement : MonoBehaviour
 
     private float jumpForce = 15;
     
-    public bool isMove, isClimb;
-    public bool isJump, isBlock;
+    public bool isMove, isJump;
+    public bool isGrab, isClimb, isBlock;
     //private bool wallGrab;
 
     private int extraJump;
@@ -84,9 +84,9 @@ public class Movement : MonoBehaviour
         rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
     }
 
-    public void wallClimb(Vector2 dir)  //爬墙
+    private void wallClimb(Vector2 dir)  //爬墙
     {
-        //if (isBlock) return;
+        if (isBlock) return;
         float climb = 4;
         rb.velocity = new Vector2(rb.velocity.x, dir.y * climb);
     }
@@ -155,7 +155,10 @@ public class Movement : MonoBehaviour
 
     private void CollCheck()
     {
-        if (coll.onWall && !coll.onGround)
+        if (coll.onBlock && coll.onWall && !coll.onGround) isGrab = true;
+        else isGrab = false;
+
+        if (isGrab && coll.onWall && !coll.onGround)
         {
             isClimb = true;
             isBlock = coll.onBlock ? false : true;
