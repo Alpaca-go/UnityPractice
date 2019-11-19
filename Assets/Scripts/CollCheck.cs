@@ -29,7 +29,9 @@ public class CollCheck : MonoBehaviour
 
     void Update()
     {
-        onBlock = Physics2D.OverlapCircle((Vector2)transform.position + leftSight, 0.1f, ground) || Physics2D.OverlapCircle((Vector2)transform.position + rightSight, 0.1f, ground);
+        onLeftBlock = Physics2D.OverlapCircle((Vector2)transform.position + leftSight, 0.1f, ground);
+        onRightBlock = Physics2D.OverlapCircle((Vector2)transform.position + rightSight, 0.1f, ground);
+        onBlock = onLeftBlock || onRightBlock;
 
         onLeftWall = Physics2D.OverlapCircle((Vector2)transform.position + leftBody, 0.1f, ground);
         onRightWall = Physics2D.OverlapCircle((Vector2)transform.position + rightBody, 0.1f, ground);

@@ -16,9 +16,8 @@ public class Movement : MonoBehaviour
     
     public bool isMove, isJump;
     public bool isGrab, isClimb, isBlock;
-    //private bool wallGrab;
 
-    private int extraJump;
+    public int extraJump;
     public int side = 1;
 
 
@@ -42,7 +41,7 @@ public class Movement : MonoBehaviour
 
         Walk(dir);
         anim.basicMove(x, y, rb.velocity.y);
-        if (isClimb)
+        if (isGrab)
         {
             wallClimb(dir);
             anim.basicMove(x, y, Mathf.Abs(rb.velocity.y));
@@ -53,18 +52,12 @@ public class Movement : MonoBehaviour
         Jump();
         multiJump();
         freeFall();
-        CollCheck();
+        collCheck();
     }
 
     void FixedUpdate()
     {
-        //if (isSlide) wallSlide();
-        //if (coll.onGround) groundTouch();
-        /*if (coll.onWall)
-        {
-            wallClimb(dir);
-            anim.basicMove(x, y, rb.velocity.y);
-        }*/
+        
     }
 
     private void dirCheck()
@@ -79,7 +72,7 @@ public class Movement : MonoBehaviour
 
     private void Walk(Vector2 dir)  //地面移动
     {
-        if (isClimb) return;
+        if (isGrab) return;
         float speed = 10;
         rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
     }
@@ -115,10 +108,8 @@ public class Movement : MonoBehaviour
 
     private void Jump()  //普通跳跃
     {
-        if (coll.onGround || coll.onWall) isJump = false;
         if (Input.GetButtonDown("Jump") && ((coll.onGround && !isJump) || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
         {
-            isJump = true;
             rb.velocity = Vector2.up * jumpForce;
             anim.SetTrigger("jump");
         }
@@ -127,15 +118,12 @@ public class Movement : MonoBehaviour
     private void multiJump()  //多段跳跃
     {
         if (coll.onGround || coll.onWall) extraJump = 2;  //连跳次数
-        if (Input.GetButtonDown("Jump") && extraJump > 0) extraJump--;
+        if (Input.GetButtonDown("Jump")) extraJump--;
     }
 
     /*private void wallJump()
     {
-        if (Input.GetButtonDown("Jump") && )
-        {
-            onWall = false;
-        }
+
     }*/
 
     private void freeFall()  //优化重力
@@ -149,20 +137,18 @@ public class Movement : MonoBehaviour
         if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
             rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
 
-        if (isClimb) rb.gravityScale = 0;
+        if (isGrab) rb.gravityScale = 0;
         else rb.gravityScale = 1;
     }
 
-    private void CollCheck()
+    private void collCheck()
     {
-        if (coll.onBlock && coll.onWall && !coll.onGround) isGrab = true;
-        else isGrab = false;
-
-        if (isGrab && coll.onWall && !coll.onGround)
-        {
-            isClimb = true;
-            isBlock = coll.onBlock ? false : true;
-        }
-        else isClimb = false;
+        isJump = (rb.velocity.y == 0 || coll.onWall || coll.onGround) ? false : true;
+        isGrab = (coll.onBlock && coll.onWall && !coll.onGround) ? true : false;
+        /*bool isLeftGrab = coll.onLeftBlock && coll.onLeftWall && !coll.onGround && Input.GetKeyDown(KeyCode.LeftArrow);
+        bool isRightGrab = coll.onRightBlock && coll.onRightWall && !coll.onGround && Input.GetKeyDown(KeyCode.RightArrow);
+        isGrab = (isLeftGrab || isRightGrab) ? true : false;*/
+        isClimb = (isGrab && rb.velocity.y != 0) ? true : false;
+        isBlock = coll.onBlock ? false : true;
     }
 }
