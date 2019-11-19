@@ -22,7 +22,7 @@ public class SwitchAnim : MonoBehaviour
         anim.SetBool("onGround", coll.onGround);
         anim.SetBool("onWall", coll.onWall);
         anim.SetBool("onRightWall", coll.onRightWall);
-        anim.SetBool("isClimb", move.isClimb);
+        anim.SetBool("isClimb", move.isGrab);
         /*anim.SetBool("canMove", move.canMove);*/
     }
 
