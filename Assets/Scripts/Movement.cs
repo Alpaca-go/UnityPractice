@@ -12,12 +12,13 @@ public class Movement : MonoBehaviour
     private float y, yRaw;
     public Vector2 dir;
 
-    private float jumpForce = 15;
+    private float jumpForce = 55;
     
-    public bool isMove, isJump, isWallJump;
+    public bool isMove, isDash, isDashed;
+    public bool isGround, isJump, isWallJump;
     public bool isGrab, isClimb, isBlock;
 
-    public int extraJump = 2;
+    public int extraJump;
     public int side = 1;
 
 
@@ -47,9 +48,11 @@ public class Movement : MonoBehaviour
             anim.basicMove(x, y, Mathf.Abs(rb.velocity.y));
         }
 
-        //if (isGrab) wallJump();
+        if (isGrab) wallGrab();
+        if (isGrab) wallJump();
+        else Jump(Vector2.up);
         dirCheck();
-        Jump();
+        //Jump(dir);
         multiJump();
         freeFall();
         collCheck();
@@ -60,7 +63,7 @@ public class Movement : MonoBehaviour
         
     }
 
-    private void dirCheck()
+    private void dirCheck()  //朝向检测
     {
         if (x > 0) side = 1;
         if (x < 0) side = -1;
@@ -84,34 +87,12 @@ public class Movement : MonoBehaviour
         rb.velocity = new Vector2(rb.velocity.x, dir.y * climb);
     }
 
-    /*private void Jump()  //蓄力跳跃
+    private void Jump(Vector2 dir)  //普通跳跃
     {
-        float jumpMax = 2;
-        float jumpHold = 0.1f;
-        float jumpTime;
-
-        if (Input.GetButtonDown("Jump") && !isJump && extraJump > 0)
+        if (Input.GetButtonDown("Jump") && (coll.onGround || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
         {
-            isJump = true;
-            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-            jumpTime = Time.time + jumpHold;
-            anim.SetBool("jumping", true);
-        }
-        else if (isJump)
-        {
-            if (Input.GetButton("Jump"))
-                rb.AddForce(new Vector2(0, jumpMax), ForceMode2D.Impulse);
-            if (jumpTime < Time.time)
-                isJump = false;
-        }
-    }*/
-
-    private void Jump()  //普通跳跃
-    {
-        if (isGrab) return;
-        if (Input.GetButtonDown("Jump") && ((coll.onGround && !isJump) || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
-        {
-            rb.velocity = Vector2.up * jumpForce;
+            rb.velocity = new Vector2(rb.velocity.x, 0);
+            rb.velocity += dir * jumpForce;
             anim.SetTrigger("jump");
         }
     }
@@ -126,19 +107,27 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && extraJump > 0)
         {
+            if ((side == 1 && coll.onRightWall) || side == -1 && !coll.onRightWall)
+            {
+                side *= -1;
+                anim.Flip(side);
+            }
 
-            rb.velocity = Vector2.up * jumpForce;
-            anim.SetTrigger("jump");
+            Vector2 wallDir = coll.onRightBlock ? Vector2.left : Vector2.right;
+            Jump(Vector2.up + wallDir);
         }
-        
-        if ((side == 1 && coll.onRightWall) || side == -1 && !coll.onRightWall)
-        {
-            side *= -1;
-            anim.Flip(side);
-        }
-        Jump();
     }
 
+    private void wallGrab()
+    {
+        if (coll.wallDir != side) anim.Flip(side * -1);
+
+        bool isPush =
+        (rb.velocity.x > 0 && coll.onRightWall) || (rb.velocity.x < 0 && coll.onLeftWall) ? true : false;
+
+        float push = isPush ? 0 : rb.velocity.x;
+        rb.velocity = new Vector2(push, 0);
+    }
     private void freeFall()  //优化重力
     {
         float fallDown = 2f;  //重力修正
@@ -165,4 +154,27 @@ public class Movement : MonoBehaviour
         isClimb = (isGrab && rb.velocity.y != 0) ? true : false;
         isBlock = coll.onBlock ? false : true;
     }
+
+
+    /*private void Jump()  //蓄力跳跃
+    {
+        float jumpMax = 2;
+        float jumpHold = 0.1f;
+        float jumpTime;
+
+        if (Input.GetButtonDown("Jump") && !isJump && extraJump > 0)
+        {
+            isJump = true;
+            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            jumpTime = Time.time + jumpHold;
+            anim.SetBool("jumping", true);
+        }
+        else if (isJump)
+        {
+            if (Input.GetButton("Jump"))
+                rb.AddForce(new Vector2(0, jumpMax), ForceMode2D.Impulse);
+            if (jumpTime < Time.time)
+                isJump = false;
+        }
+    }*/
 }
