@@ -1,180 +1,300 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Movement : MonoBehaviour
 {
-    private Rigidbody2D rb;
     private CollCheck coll;
+    private Rigidbody2D rb;
     private SwitchAnim anim;
 
-    private float x, xRaw;
-    private float y, yRaw;
-    public Vector2 dir;
+    private float speed = 10;
+    private float jumpForce = 15;
+    private float slideSpeed = 5;
+    private float wallJumpLerp = 10;
+    private float dashSpeed = 20;
 
-    private float jumpForce = 55;
-    
-    public bool isMove, isDash, isDashed;
-    public bool isGround, isJump, isWallJump;
-    public bool isGrab, isClimb, isBlock;
+    public bool canMove;
+    public bool wallGrab;
+    public bool wallJumped;
+    public bool wallSlide;
+    public bool isDashing;
 
-    public int extraJump;
+    public bool groundTouch;
+    public bool hasDashed;
+
     public int side = 1;
 
+    /*public ParticleSystem dashParticle;
+    public ParticleSystem jumpParticle;
+    public ParticleSystem wallJumpParticle;
+    public ParticleSystem slideParticle;*/
 
-
+    // Start is called before the first frame update
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<CollCheck>();
-        anim = GetComponent<SwitchAnim>();
-
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponentInChildren<SwitchAnim>();
     }
 
+    // Update is called once per frame
     void Update()
     {
-        x = Input.GetAxis("Horizontal");
-        y = Input.GetAxis("Vertical");
-        xRaw = Input.GetAxisRaw("Horizontal");
-        yRaw = Input.GetAxisRaw("Vertical");
-
-        dir = new Vector2(x, y);
+        float x = Input.GetAxis("Horizontal");
+        float y = Input.GetAxis("Vertical");
+        float xRaw = Input.GetAxisRaw("Horizontal");
+        float yRaw = Input.GetAxisRaw("Vertical");
+        Vector2 dir = new Vector2(x, y);
 
         Walk(dir);
-        anim.basicMove(x, y, rb.velocity.y);
-        if (isGrab)
+        anim.basicMove(Mathf.Abs(x), y, rb.velocity.y);
+
+        if (coll.onWall && Input.GetButton("Fire3") && canMove)
         {
-            wallClimb(dir);
-            anim.basicMove(x, y, Mathf.Abs(rb.velocity.y));
+            if (side != coll.wallDir)
+                anim.Flip(side * -1);
+            wallGrab = true;
+            wallSlide = false;
         }
 
-        if (isGrab) wallGrab();
-        if (isGrab) wallJump();
-        else Jump(Vector2.up);
-        dirCheck();
-        //Jump(dir);
-        multiJump();
-        freeFall();
-        collCheck();
-    }
-
-    void FixedUpdate()
-    {
-        
-    }
-
-    private void dirCheck()  //朝向检测
-    {
-        if (x > 0) side = 1;
-        if (x < 0) side = -1;
-        if (side == -1 && coll.onLeftWall && !coll.onGround) side = 1;
-        if (side == 1 && coll.onRightWall && !coll.onGround) side = -1;
-
-        anim.Flip(side);
-    }
-
-    private void Walk(Vector2 dir)  //地面移动
-    {
-        if (isGrab) return;
-        float speed = 10;
-        rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
-    }
-
-    private void wallClimb(Vector2 dir)  //爬墙
-    {
-        if (isBlock) return;
-        float climb = 4;
-        rb.velocity = new Vector2(rb.velocity.x, dir.y * climb);
-    }
-
-    private void Jump(Vector2 dir)  //普通跳跃
-    {
-        if (Input.GetButtonDown("Jump") && (coll.onGround || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
+        if (Input.GetButtonUp("Fire3") || !coll.onWall || !canMove)
         {
-            rb.velocity = new Vector2(rb.velocity.x, 0);
-            rb.velocity += dir * jumpForce;
-            anim.SetTrigger("jump");
+            wallGrab = false;
+            wallSlide = false;
         }
-    }
 
-    private void multiJump()  //多段跳跃
-    {
-        if (coll.onGround || coll.onWall) extraJump = 2;  //连跳次数
-        if (Input.GetButtonDown("Jump")) extraJump--;
-    }
-
-    private void wallJump()
-    {
-        if (Input.GetButtonDown("Jump") && extraJump > 0)
+        if (coll.onGround && !isDashing)
         {
-            if ((side == 1 && coll.onRightWall) || side == -1 && !coll.onRightWall)
+            wallJumped = false;
+            GetComponent<FreeFall>().enabled = true;
+        }
+
+        if (wallGrab && !isDashing)
+        {
+            rb.gravityScale = 0;
+            if (x > .2f || x < -.2f)
+                rb.velocity = new Vector2(rb.velocity.x, 0);
+
+            float speedModifier = y > 0 ? .5f : 1;
+
+            rb.velocity = new Vector2(rb.velocity.x, y * (speed * speedModifier));
+        }
+        else
+        {
+            rb.gravityScale = 3;
+        }
+
+        if (coll.onWall && !coll.onGround)
+        {
+            if (x != 0 && !wallGrab)
             {
-                side *= -1;
-                anim.Flip(side);
+                wallSlide = true;
+                WallSlide();
             }
+        }
 
-            Vector2 wallDir = coll.onRightBlock ? Vector2.left : Vector2.right;
-            Jump(Vector2.up + wallDir);
+        if (!coll.onWall || coll.onGround)
+            wallSlide = false;
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            anim.SetTrigger("jump");
+
+            if (coll.onGround)
+                Jump(Vector2.up, false);
+            if (coll.onWall && !coll.onGround)
+                WallJump();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z) && !hasDashed)
+        {
+            if (xRaw != 0 || yRaw != 0)
+                Dash(xRaw, yRaw);
+        }
+
+        if (coll.onGround && !groundTouch)
+        {
+            GroundTouch();
+            groundTouch = true;
+        }
+
+        if (!coll.onGround && groundTouch)
+        {
+            groundTouch = false;
+        }
+
+        //WallParticle(y);
+
+        if (wallGrab || wallSlide || !canMove)
+            return;
+
+        if (x > 0)
+        {
+            side = 1;
+            anim.Flip(side);
+        }
+        if (x < 0)
+        {
+            side = -1;
+            anim.Flip(side);
+        }
+
+
+    }
+
+    void GroundTouch()
+    {
+        hasDashed = false;
+        isDashing = false;
+
+        side = anim.sr.flipX ? -1 : 1;
+
+        //jumpParticle.Play();
+    }
+
+    private void Dash(float x, float y)
+    {
+        Camera.main.transform.DOComplete();
+        Camera.main.transform.DOShakePosition(.2f, .5f, 14, 90, false, true);
+        //FindObjectOfType<RippleEffect>().Emit(Camera.main.WorldToViewportPoint(transform.position));
+
+        hasDashed = true;
+
+        anim.SetTrigger("dash");
+
+        rb.velocity = Vector2.zero;
+        Vector2 dir = new Vector2(x, y);
+
+        rb.velocity += dir.normalized * dashSpeed;
+        StartCoroutine(DashWait());
+    }
+
+    IEnumerator DashWait()
+    {
+        //FindObjectOfType<Shadow>().ShowGhost();
+        StartCoroutine(GroundDash());
+        DOVirtual.Float(14, 0, .8f, RigidbodyDrag);
+
+        //dashParticle.Play();
+        rb.gravityScale = 0;
+        GetComponent<FreeFall>().enabled = false;
+        wallJumped = true;
+        isDashing = true;
+
+        yield return new WaitForSeconds(.3f);
+
+        //dashParticle.Stop();
+        rb.gravityScale = 3;
+        GetComponent<FreeFall>().enabled = true;
+        wallJumped = false;
+        isDashing = false;
+    }
+
+    IEnumerator GroundDash()
+    {
+        yield return new WaitForSeconds(.15f);
+        if (coll.onGround)
+            hasDashed = false;
+    }
+
+    private void WallJump()
+    {
+        if ((side == 1 && coll.onRightWall) || side == -1 && !coll.onRightWall)
+        {
+            side *= -1;
+            anim.Flip(side);
+        }
+
+        StopCoroutine(DisableMovement(0));
+        StartCoroutine(DisableMovement(.1f));
+
+        Vector2 wallDir = coll.onRightWall ? Vector2.left : Vector2.right;
+
+        Jump((Vector2.up / 1.5f + wallDir / 1.5f), true);
+
+        wallJumped = true;
+    }
+
+    private void WallSlide()
+    {
+        if (coll.wallDir != side)
+            anim.Flip(side * -1);
+
+        if (!canMove)
+            return;
+
+        bool pushingWall = false;
+        if ((rb.velocity.x > 0 && coll.onRightWall) || (rb.velocity.x < 0 && coll.onLeftWall))
+        {
+            pushingWall = true;
+        }
+        float push = pushingWall ? 0 : rb.velocity.x;
+
+        rb.velocity = new Vector2(push, -slideSpeed);
+    }
+
+    private void Walk(Vector2 dir)
+    {
+        if (!canMove)
+            return;
+
+        if (wallGrab)
+            return;
+
+        if (!wallJumped)
+        {
+            rb.velocity = new Vector2(dir.x * speed, rb.velocity.y);
+        }
+        else
+        {
+            rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(dir.x * speed, rb.velocity.y), wallJumpLerp * Time.deltaTime);
         }
     }
 
-    private void wallGrab()
+    private void Jump(Vector2 dir, bool wall)
     {
-        if (coll.wallDir != side) anim.Flip(side * -1);
+        //slideParticle.transform.parent.localScale = new Vector3(ParticleSide(), 1, 1);
+        //ParticleSystem particle = wall ? wallJumpParticle : jumpParticle;
 
-        bool isPush =
-        (rb.velocity.x > 0 && coll.onRightWall) || (rb.velocity.x < 0 && coll.onLeftWall) ? true : false;
+        rb.velocity = new Vector2(rb.velocity.x, 0);
+        rb.velocity += dir * jumpForce;
 
-        float push = isPush ? 0 : rb.velocity.x;
-        rb.velocity = new Vector2(push, 0);
-    }
-    private void freeFall()  //优化重力
-    {
-        float fallDown = 2f;  //重力修正
-        float upResis = 2f;  //上升阻力
-
-        if (rb.velocity.y < 0)  //自由落体运动
-            rb.velocity += Vector2.up * Physics2D.gravity.y * fallDown * Time.deltaTime;
-
-        if (rb.velocity.y > 0 && !Input.GetButtonDown("Jump"))   //添加上升阻力，使其不失重
-            rb.velocity += Vector2.up * Physics2D.gravity.y * upResis * Time.deltaTime;
-
-        if (isGrab) rb.gravityScale = 0;
-        else rb.gravityScale = 1;
+        //particle.Play();
     }
 
-    private void collCheck()
+    IEnumerator DisableMovement(float time)
     {
-        isJump = (rb.velocity.y == 0 || coll.onWall || coll.onGround) ? false : true;
-
-        isGrab = (coll.onBlock && coll.onWall && !coll.onGround) ? true : false;
-        /*bool isLeftGrab = coll.onLeftBlock && coll.onLeftWall && !coll.onGround && Input.GetKeyDown(KeyCode.LeftArrow);
-        bool isRightGrab = coll.onRightBlock && coll.onRightWall && !coll.onGround && Input.GetKeyDown(KeyCode.RightArrow);
-        isGrab = (isLeftGrab || isRightGrab) ? true : false;*/
-        isClimb = (isGrab && rb.velocity.y != 0) ? true : false;
-        isBlock = coll.onBlock ? false : true;
+        canMove = false;
+        yield return new WaitForSeconds(time);
+        canMove = true;
     }
 
-
-    /*private void Jump()  //蓄力跳跃
+    void RigidbodyDrag(float x)
     {
-        float jumpMax = 2;
-        float jumpHold = 0.1f;
-        float jumpTime;
+        rb.drag = x;
+    }
 
-        if (Input.GetButtonDown("Jump") && !isJump && extraJump > 0)
+    /*void WallParticle(float vertical)
+    {
+        var main = slideParticle.main;
+
+        if (wallSlide || (wallGrab && vertical < 0))
         {
-            isJump = true;
-            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
-            jumpTime = Time.time + jumpHold;
-            anim.SetBool("jumping", true);
+            slideParticle.transform.parent.localScale = new Vector3(ParticleSide(), 1, 1);
+            main.startColor = Color.white;
         }
-        else if (isJump)
+        else
         {
-            if (Input.GetButton("Jump"))
-                rb.AddForce(new Vector2(0, jumpMax), ForceMode2D.Impulse);
-            if (jumpTime < Time.time)
-                isJump = false;
+            main.startColor = Color.clear;
         }
     }*/
+
+    int ParticleSide()
+    {
+        int particleSide = coll.onRightWall ? 1 : -1;
+        return particleSide;
+    }
 }

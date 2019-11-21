@@ -22,14 +22,14 @@ public class SwitchAnim : MonoBehaviour
         anim.SetBool("onGround", coll.onGround);
         anim.SetBool("onWall", coll.onWall);
         anim.SetBool("onRightWall", coll.onRightWall);
-        anim.SetBool("isClimb", move.isGrab);
+        anim.SetBool("isClimb", move.wallGrab);
         /*anim.SetBool("canMove", move.canMove);*/
     }
 
     public void basicMove(float x, float y, float vertiVel)  //动画切换
     {
-        anim.SetFloat("horiAxis", Mathf.Abs(x));
-        anim.SetFloat("vertiAxis", Mathf.Abs(y));
+        anim.SetFloat("horiAxis", x);
+        anim.SetFloat("vertiAxis", y);
         anim.SetFloat("vertiVel", vertiVel);
     }
 
@@ -40,7 +40,7 @@ public class SwitchAnim : MonoBehaviour
 
     public void Flip(int side)
     {
-        if (move.isClimb)
+        if (move.wallGrab)
         {
             if (side == -1 && sr.flipX) return;
             if (side == 1 && !sr.flipX) return;
