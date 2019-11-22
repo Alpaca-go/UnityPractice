@@ -16,6 +16,7 @@ public class Movement : MonoBehaviour
     private float wallJumpLerp = 10;
     private float dashSpeed = 20;
 
+<<<<<<< HEAD
     public bool canMove;
     public bool wallGrab;
     public bool wallJumped;
@@ -24,6 +25,15 @@ public class Movement : MonoBehaviour
 
     public bool groundTouch;
     public bool hasDashed;
+=======
+    private float jumpForce = 15;
+    
+    public bool isMove, isJump, isWallJump;
+    public bool isGrab, isClimb, isBlock;
+
+    public int extraJump = 2;
+    public int side = 1;
+>>>>>>> parent of d9c2db3... 1120
 
     public int side = 1;
 
@@ -121,6 +131,7 @@ public class Movement : MonoBehaviour
             groundTouch = true;
         }
 
+<<<<<<< HEAD
         if (!coll.onGround && groundTouch)
         {
             groundTouch = false;
@@ -143,6 +154,14 @@ public class Movement : MonoBehaviour
         }
 
 
+=======
+        //if (isGrab) wallJump();
+        dirCheck();
+        Jump();
+        multiJump();
+        freeFall();
+        collCheck();
+>>>>>>> parent of d9c2db3... 1120
     }
 
     void GroundTouch()
@@ -155,7 +174,11 @@ public class Movement : MonoBehaviour
         //jumpParticle.Play();
     }
 
+<<<<<<< HEAD
     private void Dash(float x, float y)
+=======
+    private void dirCheck()
+>>>>>>> parent of d9c2db3... 1120
     {
         Camera.main.transform.DOComplete();
         Camera.main.transform.DOShakePosition(.2f, .5f, 14, 90, false, true);
@@ -200,12 +223,44 @@ public class Movement : MonoBehaviour
             hasDashed = false;
     }
 
+<<<<<<< HEAD
     private void WallJump()
     {
         if ((side == 1 && coll.onRightWall) || side == -1 && !coll.onRightWall)
         {
             side *= -1;
             anim.Flip(side);
+=======
+    /*private void Jump()  //蓄力跳跃
+    {
+        float jumpMax = 2;
+        float jumpHold = 0.1f;
+        float jumpTime;
+
+        if (Input.GetButtonDown("Jump") && !isJump && extraJump > 0)
+        {
+            isJump = true;
+            rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+            jumpTime = Time.time + jumpHold;
+            anim.SetBool("jumping", true);
+        }
+        else if (isJump)
+        {
+            if (Input.GetButton("Jump"))
+                rb.AddForce(new Vector2(0, jumpMax), ForceMode2D.Impulse);
+            if (jumpTime < Time.time)
+                isJump = false;
+        }
+    }*/
+
+    private void Jump()  //普通跳跃
+    {
+        if (isGrab) return;
+        if (Input.GetButtonDown("Jump") && ((coll.onGround && !isJump) || extraJump > 0))  //地面起跳 || 空中连跳，都给与相同的上升力
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            anim.SetTrigger("jump");
+>>>>>>> parent of d9c2db3... 1120
         }
 
         StopCoroutine(DisableMovement(0));
@@ -220,6 +275,7 @@ public class Movement : MonoBehaviour
 
     private void WallSlide()
     {
+<<<<<<< HEAD
         if (coll.wallDir != side)
             anim.Flip(side * -1);
 
@@ -253,6 +309,27 @@ public class Movement : MonoBehaviour
             rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(dir.x * speed, rb.velocity.y), wallJumpLerp * Time.deltaTime);
         }
     }
+=======
+        if (Input.GetButtonDown("Jump") && extraJump > 0)
+        {
+
+            rb.velocity = Vector2.up * jumpForce;
+            anim.SetTrigger("jump");
+        }
+        
+        if ((side == 1 && coll.onRightWall) || side == -1 && !coll.onRightWall)
+        {
+            side *= -1;
+            anim.Flip(side);
+        }
+        Jump();
+    }
+
+    private void freeFall()  //优化重力
+    {
+        float fallDown = 2f;  //重力修正
+        float upResis = 2f;  //上升阻力
+>>>>>>> parent of d9c2db3... 1120
 
     private void Jump(Vector2 dir, bool wall)
     {
@@ -271,6 +348,7 @@ public class Movement : MonoBehaviour
         yield return new WaitForSeconds(time);
         canMove = true;
     }
+<<<<<<< HEAD
 
     void RigidbodyDrag(float x)
     {
@@ -298,3 +376,6 @@ public class Movement : MonoBehaviour
         return particleSide;
     }
 }
+=======
+}
+>>>>>>> parent of d9c2db3... 1120
