@@ -138,7 +138,6 @@ GameObject:
   - component: {fileID: 105358810}
   - component: {fileID: 105358811}
   - component: {fileID: 105358814}
-  - component: {fileID: 105358813}
   m_Layer: 0
   m_Name: roboMJ_Spritesheet_0
   m_TagString: Untagged
@@ -287,14 +286,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5295085544558e14782ef10658968d9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dir: {x: 0, y: 0}
   canMove: 1
-  wallGrab: 0
+  isGrab: 0
+  isClimb: 0
   wallJumped: 0
-  wallSlide: 0
+  wallPushed: 0
   isDashing: 0
-  groundTouch: 0
   hasDashed: 0
+  groundTouch: 0
   side: 1
+  extraJump: 0
 --- !u!114 &105358810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,18 +343,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd6f2b801389cd540add26893a6dc96b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &105358813
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 105358803}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f86c061f899e79542a9ad01c23ecf0f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &105358814
