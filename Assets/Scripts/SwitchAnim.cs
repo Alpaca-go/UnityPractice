@@ -24,6 +24,7 @@ public class SwitchAnim : MonoBehaviour
         anim.SetBool("onRightWall", coll.onRightWall);
         anim.SetBool("isGrab", move.isGrab);
         anim.SetBool("canMove", move.canMove);
+        anim.SetBool("isDashing", move.isDashing);
     }
 
     public void basicMove(float x, float y, float vertiVel)  //动画切换

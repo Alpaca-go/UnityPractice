@@ -39,6 +39,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 4
     m_ConditionEvent: vertiVel
     m_EventTreshold: 0.1
+  - m_ConditionMode: 1
+    m_ConditionEvent: canMove
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 483554834131336596}
   m_Solo: 0
@@ -66,6 +69,9 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 3
     m_ConditionEvent: vertiVel
+    m_EventTreshold: 0
+  - m_ConditionMode: 1
+    m_ConditionEvent: canMove
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1555489392388728600}
@@ -122,6 +128,9 @@ AnimatorStateTransition:
     m_EventTreshold: 0
   - m_ConditionMode: 2
     m_ConditionEvent: isGrab
+    m_EventTreshold: 0
+  - m_ConditionMode: 2
+    m_ConditionEvent: isDashing
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102406684828799922}
@@ -246,6 +255,18 @@ AnimatorController:
   m_Name: roboMJ_Spritesheet_0
   serializedVersion: 5
   m_AnimatorParameters:
+  - m_Name: canMove
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
+  - m_Name: isDashing
+    m_Type: 4
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 0}
   - m_Name: horiAxis
     m_Type: 1
     m_DefaultFloat: 0
@@ -296,18 +317,6 @@ AnimatorController:
     m_Controller: {fileID: 0}
   - m_Name: dash
     m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
-  - m_Name: isDashing
-    m_Type: 4
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
-  - m_Name: canMove
-    m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -599,11 +608,17 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
+    m_ConditionEvent: canMove
+    m_EventTreshold: 0
+  - m_ConditionMode: 1
     m_ConditionEvent: isGrab
     m_EventTreshold: 0
   - m_ConditionMode: 4
     m_ConditionEvent: vertiVel
     m_EventTreshold: 0.1
+  - m_ConditionMode: 2
+    m_ConditionEvent: isDashing
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 483554834131336596}
   m_Solo: 0
@@ -709,6 +724,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: isGrab
     m_EventTreshold: 0
+  - m_ConditionMode: 1
+    m_ConditionEvent: canMove
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 483554834131336596}
   m_Solo: 0
@@ -737,6 +755,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 3
     m_ConditionEvent: vertiVel
     m_EventTreshold: -0.1
+  - m_ConditionMode: 2
+    m_ConditionEvent: isDashing
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 1102609590932767510}
   m_Solo: 0

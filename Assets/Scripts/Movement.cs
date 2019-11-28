@@ -45,7 +45,7 @@ public class Movement : MonoBehaviour
         dir = new Vector2(x, y);
 
         DirCheck();
-
+        
 
         Walk(dir);
         anim.basicMove(Mathf.Abs(x), y, rb.velocity.y);
@@ -57,6 +57,34 @@ public class Movement : MonoBehaviour
             if (coll.onWall) WallJump();
         }
 
+        if (Input.GetButton("Fire1") && !hasDashed)
+        {
+            if (x != 0 || y != 0) Dash(xRaw, yRaw);
+        }
+
+        /*if (coll.onWall && x != 0 && !coll.onGround && canMove)
+        {
+            if (side != coll.wallDir) anim.Flip(side * -1);
+            isGrab = true;
+        }*/
+
+        /*if (coll.onGround && !isDashing)
+        {
+            wallJumped = false;
+            GetComponent<FreeFall>().enabled = true;
+        }
+
+        if (isGrab && !isDashing)
+        {
+            rb.gravityScale = 0;
+            rb.velocity = new Vector2(rb.velocity.x, y * speed / 2);
+        }
+        else rb.gravityScale = 2;
+
+        if (coll.onWall && !coll.onGround)
+        {
+            if (x != 0 && !isGrab) WallGrab();
+        }*/
     }
 
     private void DirCheck()
@@ -112,7 +140,7 @@ public class Movement : MonoBehaviour
         rb.velocity = new Vector2(push, 0);*/
     }
 
-    private void WallClimb()
+    /*private void WallClimb()
     {
         if (!wallJumped)
         {
@@ -122,5 +150,15 @@ public class Movement : MonoBehaviour
         {
             rb.velocity = Vector2.Lerp(rb.velocity, new Vector2(dir.x * speed, rb.velocity.y), wallJumpLerp * Time.deltaTime);
         }
+    }*/
+
+    private void Dash(float x, float y)
+    {
+        hasDashed = true;
+        anim.SetTrigger("dash");
+
+        rb.velocity = Vector2.zero;
+        Vector2 dir = new Vector2(x, y);
+        rb.velocity += dir.normalized * dashSpeed;
     }
 }
